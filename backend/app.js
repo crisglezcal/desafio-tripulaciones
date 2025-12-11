@@ -4,9 +4,6 @@ const cowsay = require("cowsay");
 const app = express(); // Creando el servidor
 app.use(express.json());
 
-// Passport
-const passport = require("passport");
-require("./config/googleAuth"); // <--- Importa tu estrategia Google
 
 // Swagger
 const { swaggerUi, swaggerSpec } = require("./config/swagger");
@@ -34,20 +31,13 @@ app.use(morgan(':method :∫url :status :param[id] - :response-time ms :body'));
 // Ruta Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Rutas
-app.use("/api/users", require("./routes/user.routes"));      
-app.use("/api/tattoos", require("./routes/tattoo.routes"));  
-app.use("/api/bookings", require("./routes/booking.routes")); 
-
-// Para poder acceder a las imágenes
-app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Ruta base de comprobación
 app.get('/api', (req, res) => {
   res.send('✅ Backend funcionando correctamente');
 });
 
-app.use("/api/auth", require("./routes/auth.routes"));
+
 
 //Esto hace que pille el dist de Docker y Render pille que estamos en produccion
 if (process.env.NODE_ENV==="production") {
