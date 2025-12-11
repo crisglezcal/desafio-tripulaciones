@@ -1,0 +1,67 @@
+.splash{
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* usamos .content para centrar el logo */
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.content{
+  flex: 1;                       /* ocupa el espacio disponible */
+  width: 100%;
+  display: flex;
+  align-items: center;           /* centra verticalmente dentro de .content */
+  justify-content: center;       /* centra horizontalmente */
+}
+
+.logo-nto{
+  max-width: 250px;
+  display: block;
+  margin: 0;                      /* quitar margen que empuja */
+}
+
+/* contenedor de botones que se sitúa abajo */
+.actions{
+  width: 100%;
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 32px;
+}
+.loginbtn {
+  padding: 20px 60px;
+  color: black;
+  border: 1px solid black;
+  background: transparent;
+  font-size: 16px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.loginbtn:hover {
+  background: black;
+  color: white;
+}
+
+.registerbtn {
+  padding: 20px 60px;
+  color: white;
+  background-color: black;
+  border: 1px solid black;
+  font-size: 16px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.registerbtn:hover {
+  background: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+}

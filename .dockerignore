@@ -1,0 +1,22 @@
+# Ignorar dependencias locales
+node_modules
+
+# Archivos de configuración de entornos locales
+.env
+
+# Archivos y carpetas específicas de sistemas operativos
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración de control de versiones
+.git
+.gitignore
+
+# Archivos de logs
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Archivos de construcción
+frontend/dist
+backend/public
