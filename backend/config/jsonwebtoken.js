@@ -1,6 +1,15 @@
-require('dotenv').config();
+const jwt = require('jsonwebtoken')
 
-module.exports = {
-  secret: process.env.JWT_SECRET,
-  expiresIn: '1h' // Tiempo de expiración del token
+const SECRET = process.env.JWT_SECRET
+
+const createToken = (payload, expirationTime = "10min") => {
+
+    return jwt.sign(payload, SECRET, {
+        expiresIn: expirationTime
+    });
+
 };
+
+const decodeToken = (token) => JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+
+module.exports = { createToken, decodeToken };
