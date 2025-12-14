@@ -10,19 +10,20 @@ const AllUsers = () => {
   //ESTADOS
   const [users, setUsers] = useState([]); //Users mostrados API
   
-  //LLAMADA API
+//LLAMADA API ALL USERS
   useEffect(()=>{
     const fetchUsers = async () => {
 
       try{
-        const data = await getAllUsers ();
-        setUsers(data);
+        const res = await getAllUsers ();
+        setUsers(res.data); 
       }catch(error){
         console.error("Error fetching users data:", error);
       }
     };
     fetchUsers();
 }, []);
+//DELETE
  const handleDelete = async (user_id) => {
         try {
             await deleteUserById(user_id);
@@ -31,13 +32,19 @@ const AllUsers = () => {
             console.error(error);
         }
   };
+  //EDIT
+  const handleUpdateUser = (updatedUser) => {
+  setUsers(prev =>
+    prev.map(u => (u.user_id === updatedUser.user_id ? updatedUser : u))
+  );
+};
 
   return <section className="allUsers">
     <h1>Users</h1>
     <div className="search">
       <SearchUser setUsers={setUsers}/>
     </div>
-    <AllUsersList users={users} handleDelete={handleDelete}/>
+    <AllUsersList users={users} handleDelete={handleDelete} handleUpdateUser={handleUpdateUser}/>
   </section>
 };
 

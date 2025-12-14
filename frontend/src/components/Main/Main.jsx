@@ -8,7 +8,7 @@ import AllUsers from "./AllUsers/AllUsers"
 const Main = () => {
   return <main>
     <Routes>
-        <Route path='/'element={<AdminDashboard/>}/>
+        <Route path='/admin'element={<AdminDashboard/>}/>
         <Route path='/createuser'element={<CreateUserContainer/>}/>
         <Route path='/users'element={<AllUsers/>}/>
     </Routes>

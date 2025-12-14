@@ -12,6 +12,7 @@ router.get('/customers', adminController.getCustomers);
 router.get('/products', adminController.getProducts);
 // GET http://localhost:3000/api/admin/hr
 router.get('/hr', adminController.getHr);
+
 // GET http://localhost:3000/api/admin/users
 router.get('/users', adminController.getAllUsers);
 // GET http://localhost:3000/api/admin/users/:user_id

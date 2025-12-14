@@ -93,8 +93,8 @@ const queries = {
   
   // Crear nuevo usuario
   createUser: `
-    INSERT INTO users (employee_id, role, email, password)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO users (role, email, password)
+    VALUES ($1, $2, $3)
     RETURNING 
       user_id,
       employee_id,
@@ -106,11 +106,10 @@ const queries = {
   updateUserById: `
     UPDATE users 
     SET 
-      employee_id = $1,
-      role = $2,
-      email = $3,
-      password = $4
-    WHERE user_id = $5
+      role = $1,
+      email = $1,
+      password = $3
+    WHERE user_id = $4
     RETURNING 
       user_id,
       employee_id,
