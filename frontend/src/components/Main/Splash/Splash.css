@@ -1,0 +1,54 @@
+.splash {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e60012 0%, #b8000e 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+}
+
+.content {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.logo-nto {
+  width: 260px;
+  max-width: 80%;
+  margin-bottom: 30px;
+}
+
+.content h1 {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+}
+
+.content p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+}
+
+.loginbtn {
+  background-color: #ffffff;
+  color: #e60012;
+  border: none;
+  padding: 14px 40px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.loginbtn:hover {
+  background-color: #f2f2f2;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}

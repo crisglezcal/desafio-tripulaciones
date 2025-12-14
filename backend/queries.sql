@@ -4,6 +4,7 @@ CREATE TABLE employees (
     employee_id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     position VARCHAR(100),
     department VARCHAR(100),
     salary NUMERIC(10,2)
@@ -48,12 +49,9 @@ CREATE TABLE sales (
     subtotal NUMERIC(10,2),
     discount_amount NUMERIC(10,2),
     total NUMERIC(10,2),
-    hour INTEGER,
-    day INTEGER,
-    month INTEGER,
-    year INTEGER,
-    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
-    FOREIGN KEY (customer_id) REFERENCES customers (customer_id) ON DELETE CASCADE
+    sale_timestamp TIMESTAMP,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers (customer_id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products (product_id) ON DELETE CASCADE
 );
 
