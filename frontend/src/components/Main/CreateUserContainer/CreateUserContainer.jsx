@@ -7,7 +7,7 @@ const CreateUserContainer = () => {
   
   return <section className="createUser">
     <h1>Create a New User</h1>
-      < CreateUserForm/>
+      <CreateUserForm/>
   </section>
 };
 

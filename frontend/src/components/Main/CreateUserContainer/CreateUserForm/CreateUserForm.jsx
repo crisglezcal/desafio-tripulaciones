@@ -14,6 +14,7 @@ const CreateUserForm = () => {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
+   console.log("Submit fired", userData); // <- aquí
   //Regex
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //no espacios/ unico @
   const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,16}$/; //al menos(1numeros + 1mayusc + 1minusc)(8-16 caract)
@@ -26,7 +27,8 @@ const CreateUserForm = () => {
       return setMsg("The password must be at least 8 characters long, with 1 number and 1 uppercase letter");
     }
   try {
-      const res = await createUser (userData); // Llama al servicio de login
+      const res = await createUser (userData); 
+     
       alert(res.msg || "User created successfully!");
       setUserData({ email: '', role: '', password: '' });
       setMsg(''); // opcional: limpiar mensaje de error
@@ -45,9 +47,9 @@ const CreateUserForm = () => {
       />
       <select name="role" value={userData.role} onChange={handleChange} required>
         <option value="">Select a role</option>
-        <option value="Mkt">Mkt</option>
-        <option value="Hr">Hr</option>
-        <option value="Admin">Admin</option>
+        <option value="mkt">mkt</option>
+        <option value="hr">hr</option>
+        <option value="admin">admin</option>
       </select>
       <input
         type="password"
@@ -59,7 +61,7 @@ const CreateUserForm = () => {
       />
       <button type="submit">Add User</button>
       {msg && <p className="error">{msg}</p>}
-      <button ><Link to="/users">See All Users</Link></button>
+      <button type="button"><Link to="/users">See All Users</Link></button>
   </form>
 };
 

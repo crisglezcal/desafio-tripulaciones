@@ -6,7 +6,6 @@ const User = ({user, handleDelete, handleUpdateUser }) => {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     email: user.email,
-    employee_id: user.employee_id,
     role: user.role,
     password: ''
   });
@@ -21,7 +20,7 @@ const User = ({user, handleDelete, handleUpdateUser }) => {
     e.preventDefault();
     try {
       const res = await updateUserById(user.user_id, formData);
-      handleUpdateUser(res.data); // actualizar en el estado del padre
+      handleUpdateUser(res.user); // actualizar en el estado del padre
       setEditing(false);
       setMsg('');
     } catch (error) {
@@ -40,9 +39,9 @@ const User = ({user, handleDelete, handleUpdateUser }) => {
           <input type="email" name="email" value={formData.email} onChange={handleChange} required />
           <select name="role" value={formData.role} onChange={handleChange} required>
             <option value="">Select role</option>
-            <option value="Mkt">Mkt</option>
-            <option value="Hr">Hr</option>
-            <option value="Admin">Admin</option>
+            <option value="mkt">mkt</option>
+            <option value="hr">hr</option>
+            <option value="admin">admin</option>
           </select>
           <input type="password" name="password" placeholder="New password" value={formData.password} onChange={handleChange} />
           <button type="submit">Save</button>

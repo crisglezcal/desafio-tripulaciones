@@ -66,38 +66,43 @@ const queries = {
   
   // Obtener todos los usuarios
   getAllUsers: `
-    SELECT 
-      u.user_id,
-      u.employee_id,
-      CONCAT(e.first_name, ' ', e.last_name) as employee_name,
-      u.role,
-      u.email
-    FROM users u
-    LEFT JOIN employees e ON u.employee_id = e.employee_id
-    ORDER BY u.role, u.user_id
-  `,
+  SELECT 
+    user_id,
+    role,
+    email
+  FROM users
+  ORDER BY role, user_id
+`,
   
   // Obtener usuario por ID
-  getUserById: `
-    SELECT 
-      u.user_id,
-      u.employee_id,
-      CONCAT(e.first_name, ' ', e.last_name) as employee_name,
-      u.role,
-      u.email,
-      u.password
-    FROM users u
-    LEFT JOIN employees e ON u.employee_id = e.employee_id
-    WHERE u.user_id = $1
-  `,
+  // getUserById: `
+  //   SELECT 
+  //     u.user_id,
+  //     u.employee_id,
+  //     CONCAT(e.first_name, ' ', e.last_name) as employee_name,
+  //     u.role,
+  //     u.email,
+  //     u.password
+  //   FROM users u
+  //   LEFT JOIN employees e ON u.employee_id = e.employee_id
+  //   WHERE u.user_id = $1
+  // `,
   
+  getUserById: `
+  SELECT 
+    user_id,
+    role,
+    email,
+    password
+  FROM users
+  WHERE user_id = $1
+`,
   // Crear nuevo usuario
   createUser: `
     INSERT INTO users (role, email, password)
     VALUES ($1, $2, $3)
     RETURNING 
       user_id,
-      employee_id,
       role,
       email
   `,
@@ -107,12 +112,11 @@ const queries = {
     UPDATE users 
     SET 
       role = $1,
-      email = $1,
+      email = $2,
       password = $3
     WHERE user_id = $4
     RETURNING 
       user_id,
-      employee_id,
       role,
       email
   `,
@@ -123,7 +127,6 @@ const queries = {
     WHERE user_id = $1
     RETURNING 
       user_id,
-      employee_id,
       role,
       email
   `

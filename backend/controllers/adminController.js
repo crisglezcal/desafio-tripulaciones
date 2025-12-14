@@ -99,8 +99,9 @@ module.exports = {
     },
 
     createUser: async (req, res) => {
+        console.log('CreateUser body:', req.body);
         try {
-            const result = await Admin.createUser(req.body);  
+            const result = await Admin.createUser(req.body); 
             res.status(201).json(result);
         } catch (err) {
             res.status(400).json({ 

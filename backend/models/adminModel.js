@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const queries = require('../queries/adminQueries');
+const bcrypt = require('bcrypt');
 
 const getSales = async () => {
   try {
@@ -72,11 +73,14 @@ const createUser = async (userData) => {
       throw new Error('Rol inválido. Los roles permitidos son: admin, hr, mkt');
     }
     
+    //Hashear contraseñas
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     const result = await pool.query(queries.createUser, [
-      employee_id,
       role.toLowerCase(),
       email,
-      password
+      hashedPassword
     ]);
     
     return {
@@ -84,6 +88,7 @@ const createUser = async (userData) => {
       user: result.rows[0]
     };
   } catch (error) {
+    console.error('Error creando usuario en DB:', error);
     throw new Error('Error al crear usuario: ' + error.message);
   }
 };
@@ -97,11 +102,19 @@ const updateUserById = async (user_id, userData) => {
     }
     
     const {role, email, password } = userData;
+
+
+    // 🔹 Si hay nueva contraseña, la hasheamos
+    let hashedPassword;
+    if (password) {
+      const saltRounds = 10;
+      hashedPassword = await bcrypt.hash(password, saltRounds);
+    }
+
     const updateData = {
-      // employee_id: employee_id || existingUser.rows[0].employee_id,
       role: role ? role.toLowerCase() : existingUser.rows[0].role,
       email: email || existingUser.rows[0].email,
-      password: password || existingUser.rows[0].password
+      password: hashedPassword || existingUser.rows[0].password
     };
     
     if (role) {
@@ -124,6 +137,7 @@ const updateUserById = async (user_id, userData) => {
       user: result.rows[0]
     };
   } catch (error) {
+    console.error('Error editando usuario en DB:', error);
     throw new Error('Error al actualizar usuario: ' + error.message);
   }
 };
