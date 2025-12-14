@@ -59,11 +59,11 @@ const getUserById = async (user_id) => {
 };
 
 const createUser = async (userData) => {
-  const { employee_id, role, email, password } = userData;
+  const {role, email, password } = userData;
   
   try {
 
-    if (!employee_id || !role || !email || !password) {
+    if ( !role || !email || !password) {
       throw new Error('Todos los campos son requeridos');
     }
     
@@ -96,9 +96,9 @@ const updateUserById = async (user_id, userData) => {
       throw new Error(`Usuario con ID ${user_id} no encontrado`);
     }
     
-    const { employee_id, role, email, password } = userData;
+    const {role, email, password } = userData;
     const updateData = {
-      employee_id: employee_id || existingUser.rows[0].employee_id,
+      // employee_id: employee_id || existingUser.rows[0].employee_id,
       role: role ? role.toLowerCase() : existingUser.rows[0].role,
       email: email || existingUser.rows[0].email,
       password: password || existingUser.rows[0].password
@@ -112,7 +112,7 @@ const updateUserById = async (user_id, userData) => {
     }
     
     const result = await pool.query(queries.updateUserById, [
-      updateData.employee_id,
+      // updateData.employee_id,
       updateData.role,
       updateData.email,
       updateData.password,

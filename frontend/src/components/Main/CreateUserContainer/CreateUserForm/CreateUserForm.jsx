@@ -1,12 +1,12 @@
 import React , {useState} from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom'
 import {createUser} from "../../../../services/adminServices"
 import './CreateUserForm.css';
 
 const CreateUserForm = () => {
-  const [userData, setUserData] = useState({email:'', role: '', password: '' });
+  const [userData, setUserData] = useState({ email:'', role: '', password: '' });
   const [msg, setMsg] = useState('');
-  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
@@ -19,22 +19,23 @@ const CreateUserForm = () => {
   const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,16}$/; //al menos(1numeros + 1mayusc + 1minusc)(8-16 caract)
 
   if (!emailRegex.test(userData.email)) {
-      return setMsg("Introduce un email válido");
+      return setMsg("Enter a valid email address");
     }
 
   if (!passwordRegex.test(userData.password)) {
-      return setMsg("La contraseña debe tener al menos 8 caracteres, 1 número y 1 mayúscula");
+      return setMsg("The password must be at least 8 characters long, with 1 number and 1 uppercase letter");
     }
   try {
       const res = await createUser (userData); // Llama al servicio de login
-      alert(res.msg || "¡Tu cuenta ha sido creada!");
-      setTimeout(() => navigate('/users'), 1000); // Redirige al perfil
+      alert(res.msg || "User created successfully!");
+      setUserData({ email: '', role: '', password: '' });
+      setMsg(''); // opcional: limpiar mensaje de error
   } catch (error) {
-        setMsg(error.msg || 'Error create a user');
+        setMsg(error.msg || 'Error creating user');
       }
   }
   return <form onSubmit={handleSubmit} className="userForm">
-      <input
+    <input
         type="email"
         name="email"
         placeholder="Email"
@@ -51,13 +52,14 @@ const CreateUserForm = () => {
       <input
         type="password"
         name="password"
-        placeholder="Contraseña"
+        placeholder="password"
         value={userData.password}
         onChange={handleChange}
         required
       />
       <button type="submit">Add User</button>
       {msg && <p className="error">{msg}</p>}
+      <button ><Link to="/users">See All Users</Link></button>
   </form>
 };
 

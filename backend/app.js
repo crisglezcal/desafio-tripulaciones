@@ -13,7 +13,10 @@ const path = require("path");
 const cors = require("cors");
 
 // Permitir cualquier origen (para desarrollo)
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // tu frontend
+  credentials: true // necesario para cookies o Authorization con JWT
+}));
 
 // Configurar puerto con valor por defecto
 const port = process.env.PORT || 3000;

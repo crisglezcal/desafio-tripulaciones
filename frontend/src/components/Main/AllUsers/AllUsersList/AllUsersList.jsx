@@ -4,8 +4,8 @@ import './AllUsersList.css';
 
 
 
-const AllUsersList = ({users,handleDelete}) => {
-  const renderCard = () => users.map(user => <User key={user.user_id} user={user} handleDelete={handleDelete}/>)
+const AllUsersList = ({users,handleDelete, handleUpdateUser }) => {
+  const renderCard = () => users.map(user => <User key={user.user_id} user={user} handleDelete={handleDelete}  handleUpdateUser ={ handleUpdateUser}/>)
   return <div>
       <section className="userList">
       {renderCard()}
