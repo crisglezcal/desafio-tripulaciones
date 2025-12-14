@@ -13,11 +13,9 @@ CREATE TABLE employees (
 /*Users*/
 CREATE TABLE users (
   user_id SERIAL NOT NULL PRIMARY KEY,
-  employee_id INT UNIQUE,
   role VARCHAR(50) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL,
-  FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 /*Customers*/

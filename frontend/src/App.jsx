@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom'
 //COMPONENTES CENTRALES
 import Header from './components/Header/Header.jsx'
 import Main from './components/Main/Main.jsx'
-import Footer from './components/Footer/Footer.jsx'
 
 function App() {
   return(
@@ -12,7 +11,6 @@ function App() {
      <BrowserRouter>
           <Header/>
           <Main/>
-          <Footer/>
      </BrowserRouter>
     </>
   )

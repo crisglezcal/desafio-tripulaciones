@@ -1,0 +1,90 @@
+/* === CONTENEDOR GENERAL === */
+.mkt-page {
+  padding: 2rem;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.mkt-page h1 {
+  color: #111;
+  margin-bottom: 2rem;
+}
+
+/* === SECCIONES === */
+.mkt-section {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.mkt-section h2 {
+  color: #e30613;
+  margin-bottom: 1rem;
+}
+
+/* === TABLAS === */
+.mkt-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.mkt-table th {
+  background-color: #111;
+  color: #ffffff;
+  text-align: left;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.mkt-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.9rem;
+}
+
+.mkt-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* === PAGINACIÓN === */
+.mkt-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.mkt-pagination button {
+  background-color: #e30613;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.mkt-pagination button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.mkt-pagination span {
+  font-weight: bold;
+  color: #111;
+}
+
+/* === ESTADOS === */
+.mkt-loading {
+  color: #111;
+  font-weight: bold;
+}
+
+.mkt-error {
+  color: #e30613;
+  font-weight: bold;
+}
