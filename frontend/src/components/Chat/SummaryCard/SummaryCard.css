@@ -1,20 +1,4 @@
-.summary-card {
-  background: #fff;
-  border-left: 6px solid #e60012;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
+.summary-card,
+.data-table {
+  animation: fadeInUp 0.3s ease-out both;
 }
-
-.summary-card h4 {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.summary-card p {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin: 4px 0 0;
-}
-

@@ -15,15 +15,15 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-left">
         <img
-          src="/mediamarkt_logo.png"
-          alt="MediaMarkt"
+          src="/logo_globomarket_white.png"
+          alt="Globomarket Logo"
           className="navbar-logo"
         />
       </div>
 
       <ul className="navbar-links">
         {role === "admin" && <li><Link to="/admin">Admin</Link></li>}
-        {role === "mkt" && <li><Link to="/marketing">Marketing</Link></li>}
+        {role === "mkt" && <li><Link to="/mkt">Marketing</Link></li>}
         {role === "hr" && <li><Link to="/hr">RRHH</Link></li>}
       </ul>
 

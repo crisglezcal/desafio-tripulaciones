@@ -52,12 +52,12 @@ const Login = () => {
             <TbArrowBackUp size={22} />
           </Link>
           <img
-            src="/mediamarkt_logo.png"
-            alt="MediaMarkt Logo"
+            src="/logo_globomarket.png"
+            alt="GlobalMarket Logo"
             className="login-logo"
           />
           <h1>Acceso Intranet</h1>
-          <p>Empleados MediaMarkt</p>
+          <p>Empleados Globomarket</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>

@@ -7,12 +7,12 @@ export default function Splash() {
     <section className="splash">
       <div className="content">
         <img
-          src="/media-markt-logo-white.png"
-          alt="MediaMarkt Logo"
+          src="/logo_globomarket_white.png"
+          alt="Globomarket Logo"
           className="logo-nto"
         />
         <h1>Bienvenido a la Intranet</h1>
-        <p>Acceso interno para empleados de MediaMarkt</p>
+        <p>Acceso interno para empleados de Globomarket</p>
       </div>
 
       <div className="actions">
