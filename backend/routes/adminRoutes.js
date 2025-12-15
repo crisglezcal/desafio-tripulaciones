@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController.js');
-
+//EXPRESS VALIDATOR
+const { createUserValidator, updateUserValidator } = require('../validators/userValidator.js');
+const handleValidationErrors = require('../middlewares/validate.js');
 // RUTAS SIN AUTENTICACIÓN PARA TESTING EN POSTMAN:
 
 // GET http://localhost:3000/api/admin/sales
@@ -18,9 +20,9 @@ router.get('/users', adminController.getAllUsers);
 // GET http://localhost:3000/api/admin/users/:user_id
 router.get('/users/:user_id', adminController.getUserById);
 // POST http://localhost:3000/api/admin/users
-router.post('/users', adminController.createUser);
+router.post('/users',createUserValidator, handleValidationErrors, adminController.createUser);
 // PUT http://localhost:3000/api/admin/users/:user_id
-router.put('/users/:user_id', adminController.updateUserById);
+router.put('/users/:user_id',updateUserValidator,handleValidationErrors, adminController.updateUserById);
 // DELETE http://localhost:3000/api/admin/users/:user_id
 router.delete('/users/:user_id', adminController.deleteUserById);
 
@@ -45,10 +47,10 @@ router.delete('/users/:user_id', adminController.deleteUserById);
 // router.get('/users/:user_id', getAccessToken, decodeToken, authMiddleware.isAdmin, adminController.getUserById);
 
 // // POST http://localhost:3000/api/admin/users
-// router.post('/users', getAccessToken, decodeToken, authMiddleware.isAdmin, adminController.createUser);
+// router.post('/users', getAccessToken, decodeToken, authMiddleware.isAdmin,createUserValidator, handleValidationErrors, adminController.createUser);
 
 // // PUT http://localhost:3000/api/admin/users/:user_id
-// router.put('/users/:user_id', getAccessToken, decodeToken, authMiddleware.isAdmin, adminController.updateUserById);
+// router.put('/users/:user_id', getAccessToken, decodeToken, authMiddleware.isAdmin,updateUserValidator,handleValidationErrors, adminController.updateUserById);
 
 // // DELETE http://localhost:3000/api/admin/users/:user_id
 // router.delete('/users/:user_id', getAccessToken, decodeToken, authMiddleware.isAdmin, adminController.deleteUserById);

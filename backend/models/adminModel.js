@@ -104,17 +104,24 @@ const updateUserById = async (user_id, userData) => {
     const {role, email, password } = userData;
 
 
-    // 🔹 Si hay nueva contraseña, la hasheamos
-    let hashedPassword;
-    if (password) {
-      const saltRounds = 10;
-      hashedPassword = await bcrypt.hash(password, saltRounds);
-    }
+    // // 🔹 Si hay nueva contraseña, la hasheamos
+    // let hashedPassword;
+    // if (password) {
+    //   const saltRounds = 10;
+    //   hashedPassword = await bcrypt.hash(password, saltRounds);
+    // }
+       let newPassword;
+    if (password !== undefined && password !== "") {
+    const saltRounds = 10;
+    newPassword = await bcrypt.hash(password, saltRounds);
+  }   else {
+      newPassword = existingUser.rows[0].password; // mantener la contraseña actual
+  }
 
     const updateData = {
       role: role ? role.toLowerCase() : existingUser.rows[0].role,
       email: email || existingUser.rows[0].email,
-      password: hashedPassword || existingUser.rows[0].password
+      password: newPassword || existingUser.rows[0].password
     };
     
     if (role) {
