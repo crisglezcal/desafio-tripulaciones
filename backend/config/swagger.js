@@ -1,7 +1,7 @@
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 
-//PARA VERLO EN EL NAVEGADOR: http://localhost:3000/api-docss
+//PARA VERLO EN EL NAVEGADOR: http://localhost:3000/api-docs
 const options = {
   definition: {
     openapi: '3.0.0',

@@ -14,13 +14,108 @@ const checkRefreshCookie = require('../middlewares/checkRefreshCookie');
 
 // RUTAS DEFINITIVAS CON AUTENTICACIÓN:
 
-// GET http://localhost:3000/api/mkt/sales
+/**
+ * @swagger
+ * tags:
+ *   name: Marketing
+ *   description: Endpoints exclusivos para el departamento de Marketing
+ */
+
+/**
+ * @swagger
+ * /api/mkt/sales:
+ *   get:
+ *     summary: Obtener todas las ventas
+ *     description: Solo accesible para usuarios con rol de Marketing
+ *     tags: [Marketing]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de ventas obtenida correctamente
+ *       401:
+ *         description: No autorizado - Token inválido o no proporcionado
+ *       403:
+ *         description: Prohibido - No tienes permisos de Marketing
+ */
 router.get('/sales', authMiddleware.authenticate, checkRefreshCookie, authMiddleware.requireMarketing, mktController.getSales);
 
-// GET http://localhost:3000/api/mkt/customers
+/**
+ * @swagger
+ * /api/mkt/customers:
+ *   get:
+ *     summary: Obtener todos los clientes
+ *     description: Solo accesible para usuarios con rol de Marketing
+ *     tags: [Marketing]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de clientes obtenida correctamente
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Prohibido - No tienes permisos de Marketing
+ */
 router.get('/customers', authMiddleware.authenticate, checkRefreshCookie, authMiddleware.requireMarketing, mktController.getCustomers);
 
-// GET http://localhost:3000/api/mkt/products
+/**
+ * @swagger
+ * /api/mkt/products:
+ *   get:
+ *     summary: Obtener todos los productos
+ *     description: Solo accesible para usuarios con rol de Marketing
+ *     tags: [Marketing]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número de página para paginación
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Cantidad de productos por página
+ *     responses:
+ *       200:
+ *         description: Lista de productos obtenida correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       product_id:
+ *                         type: integer
+ *                       product_name:
+ *                         type: string
+ *                       category:
+ *                         type: string
+ *                       unit_price:
+ *                         type: number
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalItems:
+ *                       type: integer
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Prohibido - No tienes permisos de Marketing
+ */
 router.get('/products', authMiddleware.authenticate, checkRefreshCookie, authMiddleware.requireMarketing, mktController.getProducts);
 
 module.exports = router;

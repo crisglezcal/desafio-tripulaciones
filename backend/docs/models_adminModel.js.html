@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/adminModel.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/adminModel.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Modelo de administración de usuarios y datos de ventas, clientes, productos y RRHH
+ * @module models/adminModel
+ */
+
+const pool = require('../config/db');
+const queries = require('../queries/adminQueries');
+const bcrypt = require('bcrypt');
+
+/**
+ * Obtiene todas las ventas
+ * @returns {Promise&lt;Array&lt;Object>>} Array de ventas
+ * @throws {Error} Si falla la consulta
+ */
+const getSales = async () => {
+  try {
+    const result = await pool.query(queries.getSales);
+    return result.rows;
+  } catch (error) {
+    throw new Error('Error al mostrar las ventas: ' + error.message);
+  }
+};
+
+/**
+ * Obtiene todos los clientes
+ * @returns {Promise&lt;Array&lt;Object>>} Array de clientes
+ * @throws {Error} Si falla la consulta
+ */
+const getCustomers = async () => {
+  try {
+    const result = await pool.query(queries.getCustomers);
+    return result.rows;
+  } catch (error) {
+    throw new Error('Error al mostrar los clientes: ' + error.message);
+  }
+};
+
+/**
+ * Obtiene todos los productos
+ * @returns {Promise&lt;Array&lt;Object>>} Array de productos
+ * @throws {Error} Si falla la consulta
+ */
+const getProducts = async () => {
+  try {
+    const result = await pool.query(queries.getProducts);
+    return result.rows;
+  } catch (error) {
+    throw new Error('Error al mostrar los productos: ' + error.message);
+  }
+};
+
+/**
+ * Obtiene todos los empleados del departamento de RRHH
+ * @returns {Promise&lt;Array&lt;Object>>} Array de empleados
+ * @throws {Error} Si falla la consulta
+ */
+const getHr = async () => {
+  try {
+    const result = await pool.query(queries.getHr);
+    return result.rows;
+  } catch (error) {
+    throw new Error('Error al mostrar Dpto. RRHH: ' + error.message);
+  }
+};
+
+/**
+ * Obtiene todos los usuarios
+ * @returns {Promise&lt;Array&lt;Object>>} Array de usuarios
+ * @throws {Error} Si falla la consulta
+ */
+const getAllUsers = async () => {
+  try {
+    const result = await pool.query(queries.getAllUsers);
+    return result.rows;
+  } catch (error) {
+    throw new Error('Error al obtener usuarios: ' + error.message);
+  }
+};
+
+/**
+ * Obtiene un usuario por su ID
+ * @param {string|number} user_id - ID del usuario
+ * @returns {Promise&lt;Object>} Objeto usuario
+ * @throws {Error} Si no se encuentra el usuario o falla la consulta
+ */
+const getUserById = async (user_id) => {
+  try {
+    const result = await pool.query(queries.getUserById, [user_id]);
+    if (result.rows.length === 0) {
+      throw new Error(`Usuario con ID ${user_id} no encontrado`);
+    }
+    return result.rows[0];
+  } catch (error) {
+    throw new Error('Error al obtener usuario por ID: ' + error.message);
+  }
+};
+
+/**
+ * Crea un nuevo usuario
+ * @param {Object} userData - Datos del usuario
+ * @param {string} userData.role - Rol del usuario (admin, hr, mkt)
+ * @param {string} userData.email - Email del usuario
+ * @param {string} userData.password - Contraseña del usuario
+ * @returns {Promise&lt;Object>} Resultado con mensaje y usuario creado
+ * @throws {Error} Si los datos son inválidos o falla la consulta
+ */
+const createUser = async (userData) => {
+  const { role, email, password } = userData;
+
+  try {
+    if (!role || !email || !password) {
+      throw new Error('Todos los campos son requeridos');
+    }
+
+    const validRoles = ['admin', 'hr', 'mkt'];
+    if (!validRoles.includes(role.toLowerCase())) {
+      throw new Error('Rol inválido. Los roles permitidos son: admin, hr, mkt');
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const result = await pool.query(queries.createUser, [
+      role.toLowerCase(),
+      email,
+      hashedPassword
+    ]);
+
+    return {
+      message: 'Usuario creado exitosamente',
+      user: result.rows[0]
+    };
+  } catch (error) {
+    console.error('Error creando usuario en DB:', error);
+    throw new Error('Error al crear usuario: ' + error.message);
+  }
+};
+
+/**
+ * Actualiza un usuario por su ID
+ * @param {string|number} user_id - ID del usuario
+ * @param {Object} userData - Datos a actualizar
+ * @param {string} [userData.role] - Nuevo rol
+ * @param {string} [userData.email] - Nuevo email
+ * @param {string} [userData.password] - Nueva contraseña
+ * @returns {Promise&lt;Object>} Resultado con mensaje y usuario actualizado
+ * @throws {Error} Si el usuario no existe, los datos son inválidos o falla la consulta
+ */
+const updateUserById = async (user_id, userData) => {
+  try {
+    const existingUser = await pool.query(queries.getUserById, [user_id]);
+    if (existingUser.rows.length === 0) {
+      throw new Error(`Usuario con ID ${user_id} no encontrado`);
+    }
+
+    const { role, email, password } = userData;
+
+    let newPassword;
+    if (password !== undefined &amp;&amp; password !== "") {
+      const saltRounds = 10;
+      newPassword = await bcrypt.hash(password, saltRounds);
+    } else {
+      newPassword = existingUser.rows[0].password;
+    }
+
+    const updateData = {
+      role: role ? role.toLowerCase() : existingUser.rows[0].role,
+      email: email || existingUser.rows[0].email,
+      password: newPassword || existingUser.rows[0].password
+    };
+
+    if (role) {
+      const validRoles = ['admin', 'hr', 'mkt'];
+      if (!validRoles.includes(updateData.role)) {
+        throw new Error('Rol inválido. Los roles permitidos son: admin, hr, mkt');
+      }
+    }
+
+    const result = await pool.query(queries.updateUserById, [
+      updateData.role,
+      updateData.email,
+      updateData.password,
+      user_id
+    ]);
+
+    return {
+      message: 'Usuario actualizado exitosamente',
+      user: result.rows[0]
+    };
+  } catch (error) {
+    console.error('Error editando usuario en DB:', error);
+    throw new Error('Error al actualizar usuario: ' + error.message);
+  }
+};
+
+/**
+ * Elimina un usuario por su ID
+ * @param {string|number} user_id - ID del usuario
+ * @returns {Promise&lt;Object>} Resultado con mensaje y usuario eliminado
+ * @throws {Error} Si el usuario no existe o falla la consulta
+ */
+const deleteUserById = async (user_id) => {
+  try {
+    const existingUser = await pool.query(queries.getUserById, [user_id]);
+    if (existingUser.rows.length === 0) {
+      throw new Error(`Usuario con ID ${user_id} no encontrado`);
+    }
+
+    await pool.query(queries.deleteUserById, [user_id]);
+
+    return {
+      message: `Usuario con ID ${user_id} eliminado exitosamente`,
+      deletedUser: existingUser.rows[0]
+    };
+  } catch (error) {
+    throw new Error('Error al eliminar usuario: ' + error.message);
+  }
+};
+
+module.exports = {
+  getSales,
+  getCustomers,
+  getProducts,
+  getHr,
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUserById,
+  deleteUserById
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-controllers_admin.html">controllers/admin</a></li><li><a href="module-controllers_auth.html">controllers/auth</a></li><li><a href="module-controllers_hr.html">controllers/hr</a></li><li><a href="module-controllers_message.html">controllers/message</a></li><li><a href="module-controllers_mkt.html">controllers/mkt</a></li><li><a href="module-middlewares_authMiddleware.html">middlewares/authMiddleware</a></li><li><a href="module-middlewares_checkRefreshCookie.html">middlewares/checkRefreshCookie</a></li><li><a href="module-middlewares_handleValidationErrors.html">middlewares/handleValidationErrors</a></li><li><a href="module-middlewares_manage404.html">middlewares/manage404</a></li><li><a href="module-models_adminModel.html">models/adminModel</a></li><li><a href="module-models_authModel.html">models/authModel</a></li><li><a href="module-models_hrModel.html">models/hrModel</a></li><li><a href="module-models_mktModel.html">models/mktModel</a></li><li><a href="module-queries_adminQueries.html">queries/adminQueries</a></li><li><a href="module-queries_authQueries.html">queries/authQueries</a></li><li><a href="module-queries_hrQueries.html">queries/hrQueries</a></li><li><a href="module-queries_mktQueries.html">queries/mktQueries</a></li><li><a href="module-services_openAiService.html">services/openAiService</a></li><li><a href="module-services_queryService.html">services/queryService</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Dec 16 2025 16:43:49 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

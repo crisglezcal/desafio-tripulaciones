@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: middlewares/authMiddleware.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: middlewares/authMiddleware.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Middleware de autenticación y autorización
+ * @module middlewares/authMiddleware
+ */
+
+const { verifyAccessToken } = require('../config/jsonwebtoken.js');
+
+/**
+ * Middleware de autenticación y control de roles
+ */
+const authMiddleware = {
+  /**
+   * Verifica el token de acceso y agrega `req.user`
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   * @param {import('express').NextFunction} next
+   */
+  authenticate: (req, res, next) => {
+    let token;
+    let tokenSource = 'none';
+    
+    if (req.headers.authorization &amp;&amp; req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+      tokenSource = 'header';
+    } else if (req.query &amp;&amp; req.query.token) {
+      token = req.query.token;
+      tokenSource = 'query';
+    } else if (req.cookies &amp;&amp; req.cookies.access_token) {
+      token = req.cookies.access_token;
+      tokenSource = 'cookie';
+    } else if (req.body &amp;&amp; req.body.token) {
+      token = req.body.token;
+      tokenSource = 'body';
+    }
+    
+    if (!token) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Token de acceso requerido',
+        code: 'TOKEN_REQUIRED'
+      });
+    }
+    
+    try {
+      const decoded = verifyAccessToken(token);
+      const userId = decoded.user_id || decoded.id_user;
+      
+      if (!userId) {
+        console.error('Error: Token no contiene user_id ni id_user');
+        return res.status(401).json({
+          success: false,
+          message: 'Token inválido: falta identificación de usuario',
+          code: 'INVALID_TOKEN_FORMAT'
+        });
+      }
+      
+      req.user = {
+        id_user: userId,
+        email: decoded.email,
+        role: decoded.role || 'user',
+        name: decoded.name || '',
+        surname: decoded.surname || '',
+        loginMethod: decoded.loginMethod || 'traditional'
+      };
+      req.token = token;
+      req.tokenExpired = false;
+      
+      next();
+      
+    } catch (error) {
+      if (error.message === 'ACCESS_TOKEN_EXPIRED') {
+        req.tokenExpired = true;
+        req.token = token;
+        req.user = null;
+        return next();
+      }
+      
+      console.error('Error verificando token:', error.message);
+      
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Token inválido o mal formado',
+        code: 'INVALID_TOKEN',
+        debug: process.env.NODE_ENV === 'development' ? {
+          error: error.message,
+          name: error.name
+        } : undefined
+      });
+    }
+  },
+
+  /**
+   * Requiere que el usuario sea administrador
+   */
+  requireAdmin: (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'No autenticado',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+    
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Acceso denegado: solo administradores",
+        code: "ADMIN_REQUIRED"
+      });
+    }
+    
+    next();
+  },
+
+  /**
+   * Requiere que el usuario sea de RRHH
+   */
+  requireHR: (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'No autenticado',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+    
+    if (req.user.role !== "hr") {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Acceso denegado: solo recursos humanos",
+        code: "HR_REQUIRED"
+      });
+    }
+    
+    next();
+  },
+
+  /**
+   * Requiere que el usuario sea de marketing
+   */
+  requireMarketing: (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'No autenticado',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+    
+    if (req.user.role !== "mkt") {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Acceso denegado: solo marketing",
+        code: "MARKETING_REQUIRED"
+      });
+    }
+    
+    next();
+  },
+
+  /**
+   * Verifica que el usuario esté autenticado
+   */
+  isAuthenticated: (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'No autenticado',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+    
+    next();
+  },
+
+  /**
+   * Requiere un rol específico
+   * @param {string} role - Rol requerido
+   */
+  hasRole: (role) => {
+    return (req, res, next) => {
+      if (!req.user) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'No autenticado',
+          code: 'NOT_AUTHENTICATED'
+        });
+      }
+      
+      if (req.user.role !== role) {
+        return res.status(403).json({ 
+          success: false, 
+          message: `Acceso denegado. Se requiere rol: ${role}`,
+          code: 'ROLE_REQUIRED'
+        });
+      }
+      
+      next();
+    };
+  },
+
+  /**
+   * Requiere uno de varios roles
+   * @param {string[]} roles - Roles permitidos
+   */
+  hasAnyRole: (roles) => {
+    return (req, res, next) => {
+      if (!req.user) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'No autenticado',
+          code: 'NOT_AUTHENTICATED'
+        });
+      }
+      
+      if (!roles.includes(req.user.role)) {
+        return res.status(403).json({ 
+          success: false, 
+          message: `Acceso denegado. Se requiere uno de estos roles: ${roles.join(', ')}`,
+          code: 'ROLE_REQUIRED'
+        });
+      }
+      
+      next();
+    };
+  }
+};
+
+module.exports = authMiddleware;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-controllers_admin.html">controllers/admin</a></li><li><a href="module-controllers_auth.html">controllers/auth</a></li><li><a href="module-controllers_hr.html">controllers/hr</a></li><li><a href="module-controllers_message.html">controllers/message</a></li><li><a href="module-controllers_mkt.html">controllers/mkt</a></li><li><a href="module-middlewares_authMiddleware.html">middlewares/authMiddleware</a></li><li><a href="module-middlewares_checkRefreshCookie.html">middlewares/checkRefreshCookie</a></li><li><a href="module-middlewares_handleValidationErrors.html">middlewares/handleValidationErrors</a></li><li><a href="module-middlewares_manage404.html">middlewares/manage404</a></li><li><a href="module-models_adminModel.html">models/adminModel</a></li><li><a href="module-models_authModel.html">models/authModel</a></li><li><a href="module-models_hrModel.html">models/hrModel</a></li><li><a href="module-models_mktModel.html">models/mktModel</a></li><li><a href="module-queries_adminQueries.html">queries/adminQueries</a></li><li><a href="module-queries_authQueries.html">queries/authQueries</a></li><li><a href="module-queries_hrQueries.html">queries/hrQueries</a></li><li><a href="module-queries_mktQueries.html">queries/mktQueries</a></li><li><a href="module-services_openAiService.html">services/openAiService</a></li><li><a href="module-services_queryService.html">services/queryService</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Dec 16 2025 16:43:49 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

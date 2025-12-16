@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/authController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/authController.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controlador de autenticación
+ * Gestiona login, refresh de tokens y cierre de sesión
+ * @module controllers/auth
+ */
+
+const Auth = require('../models/authModel');
+const {
+    createAccessToken,
+    createRefreshToken,
+    verifyRefreshToken
+} = require('../config/jsonwebtoken');
+
+module.exports = {
+
+    /**
+     * Inicia sesión de un usuario
+     * Valida credenciales y genera access y refresh tokens
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     * @returns {Promise&lt;void>}
+     */
+    login: async (req, res) => {
+        try {
+            const { email, password } = req.body;
+
+            if (!email || !password) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Email y contraseña son requeridos'
+                });
+            }
+
+            const userResult = await Auth.login(email, password);
+
+            if (userResult.length === 0) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Credenciales inválidas'
+                });
+            }
+
+            const user = userResult[0];
+
+            const accessToken = createAccessToken({
+                user_id: user.user_id,
+                role: user.role,
+                email: user.email,
+                name: user.name || '',
+                surname: user.surname || ''
+            });
+
+            const refreshToken = createRefreshToken({
+                user_id: user.user_id,
+                email: user.email,
+                role: user.role
+            });
+
+            res.cookie('refresh_token', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                path: '/api'
+            });
+
+            return res.status(200).json({
+                success: true,
+                accessToken,
+                expiresIn: 900,
+                user: {
+                    user_id: user.user_id,
+                    email: user.email,
+                    role: user.role,
+                    name: user.name || '',
+                    surname: user.surname || ''
+                }
+            });
+
+        } catch (err) {
+            console.error('Error en login:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor',
+                error: process.env.NODE_ENV === 'development' ? err.message : undefined
+            });
+        }
+    },
+
+    /**
+     * Genera nuevos tokens a partir de un refresh token válido
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     * @returns {Promise&lt;void>}
+     */
+    refreshToken: async (req, res) => {
+        try {
+            const refreshToken = req.cookies.refresh_token;
+
+            if (!refreshToken) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Refresh token requerido',
+                    code: 'REFRESH_TOKEN_REQUIRED'
+                });
+            }
+
+            let decoded;
+
+            try {
+                decoded = verifyRefreshToken(refreshToken);
+            } catch (error) {
+
+                if (
+                    error.message === 'REFRESH_TOKEN_EXPIRED' ||
+                    error.message === 'Token expirado'
+                ) {
+                    res.clearCookie('refresh_token', {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        path: '/api'
+                    });
+
+                    return res.status(401).json({
+                        success: false,
+                        message: 'Sesión expirada. Por favor inicie sesión nuevamente.',
+                        code: 'SESSION_EXPIRED'
+                    });
+                }
+
+                return res.status(401).json({
+                    success: false,
+                    message: 'Refresh token inválido',
+                    code: 'INVALID_REFRESH_TOKEN'
+                });
+            }
+
+            const userResult = await Auth.getUserById(decoded.user_id);
+
+            if (userResult.length === 0) {
+                res.clearCookie('refresh_token', {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict',
+                    path: '/api'
+                });
+
+                return res.status(401).json({
+                    success: false,
+                    message: 'Usuario no encontrado',
+                    code: 'USER_NOT_FOUND'
+                });
+            }
+
+            const user = userResult[0];
+
+            const newAccessToken = createAccessToken({
+                user_id: user.user_id,
+                role: user.role,
+                email: user.email,
+                name: user.name || '',
+                surname: user.surname || ''
+            });
+
+            const newRefreshToken = createRefreshToken({
+                user_id: user.user_id,
+                email: user.email,
+                role: user.role
+            });
+
+            res.cookie('refresh_token', newRefreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                path: '/api'
+            });
+
+            return res.json({
+                success: true,
+                accessToken: newAccessToken,
+                expiresIn: 900,
+                user: {
+                    user_id: user.user_id,
+                    email: user.email,
+                    role: user.role,
+                    name: user.name || '',
+                    surname: user.surname || ''
+                }
+            });
+
+        } catch (error) {
+            console.error('Error en refresh token:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor'
+            });
+        }
+    },
+
+    /**
+     * Cierra la sesión del usuario
+     * Elimina el refresh token almacenado en cookies
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     * @returns {void}
+     */
+    logout: (req, res) => {
+        res.clearCookie('refresh_token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/api'
+        });
+
+        return res.json({
+            success: true,
+            message: 'Sesión cerrada exitosamente.'
+        });
+    }
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-controllers_admin.html">controllers/admin</a></li><li><a href="module-controllers_auth.html">controllers/auth</a></li><li><a href="module-controllers_hr.html">controllers/hr</a></li><li><a href="module-controllers_message.html">controllers/message</a></li><li><a href="module-controllers_mkt.html">controllers/mkt</a></li><li><a href="module-middlewares_authMiddleware.html">middlewares/authMiddleware</a></li><li><a href="module-middlewares_checkRefreshCookie.html">middlewares/checkRefreshCookie</a></li><li><a href="module-middlewares_handleValidationErrors.html">middlewares/handleValidationErrors</a></li><li><a href="module-middlewares_manage404.html">middlewares/manage404</a></li><li><a href="module-models_adminModel.html">models/adminModel</a></li><li><a href="module-models_authModel.html">models/authModel</a></li><li><a href="module-models_hrModel.html">models/hrModel</a></li><li><a href="module-models_mktModel.html">models/mktModel</a></li><li><a href="module-queries_adminQueries.html">queries/adminQueries</a></li><li><a href="module-queries_authQueries.html">queries/authQueries</a></li><li><a href="module-queries_hrQueries.html">queries/hrQueries</a></li><li><a href="module-queries_mktQueries.html">queries/mktQueries</a></li><li><a href="module-services_openAiService.html">services/openAiService</a></li><li><a href="module-services_queryService.html">services/queryService</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Dec 16 2025 16:43:49 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

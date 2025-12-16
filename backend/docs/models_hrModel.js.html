@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/hrModel.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/hrModel.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Modelo de gestión de empleados
+ * @module models/hrModel
+ */
+
+const pool = require('../config/db');
+const queries = require('../queries/hrQueries');
+
+/**
+ * Obtiene todos los empleados
+ * @returns {Promise&lt;Array&lt;Object>>} Array de empleados
+ * @throws {Error} Si falla la consulta
+ */
+const getAllEmployees = async () => {
+  try {
+    const result = await pool.query(queries.getAllEmployees);
+    return result.rows;
+  } catch (error) {
+    throw new Error('Error al obtener empleados: ' + error.message);
+  }
+};
+
+/**
+ * Obtiene un empleado por su ID
+ * @param {string|number} employee_id - ID del empleado
+ * @returns {Promise&lt;Object>} Empleado encontrado
+ * @throws {Error} Si no se encuentra el empleado o falla la consulta
+ */
+const getEmployeeById = async (employee_id) => {  
+  try {
+    const result = await pool.query(queries.getEmployeeById, [employee_id]);
+    if (result.rows.length === 0) {
+      throw new Error(`Empleado con ID ${employee_id} no encontrado`);
+    }
+    return result.rows[0];
+  } catch (error) {
+    throw new Error('Error al obtener empleado por ID: ' + error.message);
+  }
+};
+
+/**
+ * Obtiene empleados por su nombre
+ * @param {string} first_name - Primer nombre del empleado
+ * @returns {Promise&lt;Array&lt;Object>>} Array de empleados que coinciden con el nombre
+ * @throws {Error} Si no se encuentra el empleado o falla la consulta
+ */
+const getEmployeeByName = async (first_name) => {  
+  try {
+    const result = await pool.query(queries.getEmployeeByName, [first_name.toLowerCase()]);
+    if (result.rows.length === 0) {
+      throw new Error(`Empleado con nombre ${first_name} no encontrado`);
+    }
+    return result.rows;  
+  } catch (error) {
+    throw new Error('Error al obtener empleado por nombre: ' + error.message);
+  }
+};
+
+/**
+ * Crea un nuevo empleado
+ * @param {Object} employeeData - Datos del empleado
+ * @param {string|number} employeeData.employee_id
+ * @param {string} employeeData.first_name
+ * @param {string} employeeData.last_name
+ * @param {string} employeeData.email
+ * @param {string} employeeData.position
+ * @param {string} employeeData.department
+ * @param {number|string} employeeData.salary
+ * @returns {Promise&lt;Object>} Resultado con mensaje y empleado creado
+ * @throws {Error} Si faltan campos o falla la consulta
+ */
+const createEmployee = async (employeeData) => {
+  const { employee_id, first_name, last_name, email, position, department, salary } = employeeData;
+  
+  try {
+    if (!employee_id || !first_name || !last_name || !email || !position || !department || !salary) {
+      throw new Error('Todos los campos son requeridos (employee_id, first_name, last_name, email, position, department, salary)');
+    }
+    
+    const result = await pool.query(queries.createEmployee, [
+      employee_id,
+      first_name.toLowerCase(),
+      last_name.toLowerCase(),
+      email.toLowerCase(),  
+      position.toLowerCase(),
+      department.toLowerCase(),
+      parseFloat(salary)
+    ]);
+    
+    return {
+      message: 'Empleado creado exitosamente',
+      employee: result.rows[0]  
+    };
+  } catch (error) {
+    throw new Error('Error al crear empleado: ' + error.message);
+  }
+};
+
+/**
+ * Actualiza un empleado por su ID
+ * @param {string|number} employee_id - ID del empleado
+ * @param {Object} employeeData - Datos a actualizar
+ * @param {string} [employeeData.first_name]
+ * @param {string} [employeeData.last_name]
+ * @param {string} [employeeData.email]
+ * @param {string} [employeeData.position]
+ * @param {string} [employeeData.department]
+ * @param {number|string} [employeeData.salary]
+ * @returns {Promise&lt;Object>} Resultado con mensaje y empleado actualizado
+ * @throws {Error} Si no se encuentra el empleado o falla la consulta
+ */
+const updateEmployeeById = async (employee_id, employeeData) => {  
+  try {
+    const existingEmployee = await pool.query(queries.getEmployeeById, [employee_id]);
+    if (existingEmployee.rows.length === 0) {
+      throw new Error(`Empleado con ID ${employee_id} no encontrado`);
+    }
+    
+    const { first_name, last_name, email, position, department, salary } = employeeData;
+    
+    const updateData = {
+      first_name: first_name ? first_name.toLowerCase() : existingEmployee.rows[0].first_name,
+      last_name: last_name ? last_name.toLowerCase() : existingEmployee.rows[0].last_name,
+      email: email ? email.toLowerCase() : existingEmployee.rows[0].email,  
+      position: position ? position.toLowerCase() : existingEmployee.rows[0].position,
+      department: department ? department.toLowerCase() : existingEmployee.rows[0].department,
+      salary: salary ? parseFloat(salary) : existingEmployee.rows[0].salary
+    };
+    
+    const result = await pool.query(queries.updateEmployeeById, [
+      updateData.first_name,
+      updateData.last_name,
+      updateData.email,  
+      updateData.position,
+      updateData.department,
+      updateData.salary,
+      employee_id  
+    ]);
+    
+    return {
+      message: 'Empleado actualizado exitosamente',
+      employee: result.rows[0]
+    };
+  } catch (error) {
+    throw new Error('Error al actualizar empleado: ' + error.message);
+  }
+};
+
+/**
+ * Elimina un empleado por su ID
+ * @param {string|number} employee_id - ID del empleado
+ * @returns {Promise&lt;Object>} Resultado con mensaje y empleado eliminado
+ * @throws {Error} Si no se encuentra el empleado o falla la consulta
+ */
+const deleteEmployeeById = async (employee_id) => {  
+  try {
+    const existingEmployee = await pool.query(queries.getEmployeeById, [employee_id]);
+    if (existingEmployee.rows.length === 0) {
+      throw new Error(`Empleado con ID ${employee_id} no encontrado`);
+    }
+    
+    await pool.query(queries.deleteEmployeeById, [employee_id]);
+    
+    return {
+      message: `Empleado con ID ${employee_id} eliminado exitosamente`,
+      deletedEmployee: existingEmployee.rows[0]
+    };
+  } catch (error) {
+    throw new Error('Error al eliminar empleado: ' + error.message);
+  }
+};
+
+module.exports = {
+  getAllEmployees,
+  getEmployeeById,
+  getEmployeeByName,
+  createEmployee,
+  updateEmployeeById,
+  deleteEmployeeById
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-controllers_admin.html">controllers/admin</a></li><li><a href="module-controllers_auth.html">controllers/auth</a></li><li><a href="module-controllers_hr.html">controllers/hr</a></li><li><a href="module-controllers_message.html">controllers/message</a></li><li><a href="module-controllers_mkt.html">controllers/mkt</a></li><li><a href="module-middlewares_authMiddleware.html">middlewares/authMiddleware</a></li><li><a href="module-middlewares_checkRefreshCookie.html">middlewares/checkRefreshCookie</a></li><li><a href="module-middlewares_handleValidationErrors.html">middlewares/handleValidationErrors</a></li><li><a href="module-middlewares_manage404.html">middlewares/manage404</a></li><li><a href="module-models_adminModel.html">models/adminModel</a></li><li><a href="module-models_authModel.html">models/authModel</a></li><li><a href="module-models_hrModel.html">models/hrModel</a></li><li><a href="module-models_mktModel.html">models/mktModel</a></li><li><a href="module-queries_adminQueries.html">queries/adminQueries</a></li><li><a href="module-queries_authQueries.html">queries/authQueries</a></li><li><a href="module-queries_hrQueries.html">queries/hrQueries</a></li><li><a href="module-queries_mktQueries.html">queries/mktQueries</a></li><li><a href="module-services_openAiService.html">services/openAiService</a></li><li><a href="module-services_queryService.html">services/queryService</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Dec 16 2025 16:43:49 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

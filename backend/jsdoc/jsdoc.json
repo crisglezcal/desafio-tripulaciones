@@ -1,0 +1,21 @@
+{
+  "source": {
+    "include": [
+      "app.js",
+      "controllers",
+      "services",
+      "models",
+      "middlewares",
+      "queries",
+      "utils",
+      "validators",
+      "config"
+    ],
+    "includePattern": ".js$",
+    "excludePattern": "(node_modules|docs)"
+  },
+  "opts": {
+    "destination": "docs",
+    "recurse": true
+  }
+}
