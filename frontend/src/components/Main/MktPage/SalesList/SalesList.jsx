@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { getSalesPaginated  } from "../../../../services/mktServices";
+import { getSalesPaginated } from "../../../../services/mktServices";
 import Pagination from "../../../Pagination/Pagination";
+import SalesChart from "../SalesChart/SalesChart"; // Componente gráfico
+import './SalesList.css'
 const LIMIT = 10;
 
 const SalesList = () => {
@@ -9,6 +11,7 @@ const SalesList = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showChart, setShowChart] = useState(false); // toggle gráfico interno
 
   useEffect(() => {
     setLoading(true);
@@ -32,39 +35,56 @@ const SalesList = () => {
 
   return (
     <section className="mkt-section">
-  <h2>Ventas</h2>
+      <h2>Ventas</h2>
 
-  <table className="mkt-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Cliente</th>
-        <th>Producto</th>
-        <th>Cantidad</th>
-        <th>Total</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody>
-      {sales.map(sale => (
-        <tr key={sale.sale_id}>
-          <td>{sale.sale_id}</td>
-          <td>{sale.first_name_customer} {sale.last_name_customer}</td>
-          <td>{sale.product_name}</td>
-          <td>{sale.quantity}</td>
-          <td>{sale.total} €</td>
-          <td>{new Date(sale.sale_timestamp).toLocaleString()}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+      <button className="buttonMkt"
+        onClick={() => setShowChart(!showChart)}
+        style={{ marginBottom: "20px" }}
+      >
+        {showChart ? "Ver Tabla" : "Ver Gráfico"}
+      </button>
 
-  <Pagination
-    currentPage={pagination.page}
-    totalPages={pagination.totalPages}
-    onPageChange={setPage}
-  />
-</section>
+      {showChart ? (
+        <SalesChart sales={sales} /> // gráfico interactivo completo
+      ) : (
+        <>
+          <div className="table-wrapper">
+            <table className="mkt-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Cliente</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Total</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sales.map((sale) => (
+                  <tr key={sale.sale_id}>
+                    <td>{sale.sale_id}</td>
+                    <td>
+                      {sale.first_name_customer} {sale.last_name_customer}
+                    </td>
+                    <td>{sale.product_name}</td>
+                    <td>{sale.quantity}</td>
+                    <td>{sale.total} €</td>
+                    <td>{new Date(sale.sale_timestamp).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={setPage}
+          />
+        </>
+      )}
+    </section>
   );
 };
 

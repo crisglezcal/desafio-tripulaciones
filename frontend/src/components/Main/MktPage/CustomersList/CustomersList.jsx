@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getCustomersPaginated } from "../../../../services/mktServices";
 import Pagination from "../../../Pagination/Pagination";
 
+
 const LIMIT = 10;
 
 const CustomersList = () => {
@@ -31,30 +32,30 @@ const CustomersList = () => {
   return (
     <section className="mkt-section">
       <h2>Clientes</h2>
-
-      <table className="mkt-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Región</th>
-          </tr>
-        </thead>
-        <tbody>
-          {customers.map(c => (
-            <tr key={c.customer_id}>
-              <td>{c.customer_id}</td>
-              <td>
-                {c.first_name_customer} {c.last_name_customer}
-              </td>
-              <td>{c.email}</td>
-              <td>{c.region}</td>
+      <div className="table-wrapper">
+        <table className="mkt-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Región</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
+          </thead>
+          <tbody>
+            {customers.map(c => (
+              <tr key={c.customer_id}>
+                <td>{c.customer_id}</td>
+                <td>
+                  {c.first_name_customer} {c.last_name_customer}
+                </td>
+                <td>{c.email}</td>
+                <td>{c.region}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Pagination
         currentPage={pagination.page}
         totalPages={pagination.totalPages}

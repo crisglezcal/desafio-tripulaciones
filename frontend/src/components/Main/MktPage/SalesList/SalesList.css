@@ -1,0 +1,28 @@
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tabla base */
+.mkt-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px; /* fuerza scroll en móvil */
+}
+
+/* Celdas */
+.mkt-table th,
+.mkt-table td {
+  padding: 10px;
+  text-align: left;
+  white-space: nowrap; /* evita saltos raros */
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .mkt-table {
+    font-size: 0.85rem;
+  }
+}
