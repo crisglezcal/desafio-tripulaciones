@@ -6,7 +6,7 @@ export const sendChatMessage = async (message) => {
       message,
     };
 
-    const response = await api.post("ask", body);
+    const response = await api.post("", body);
 
     return response.data;
   } catch (error) {

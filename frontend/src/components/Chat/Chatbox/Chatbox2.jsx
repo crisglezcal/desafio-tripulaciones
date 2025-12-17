@@ -1,10 +1,55 @@
 import { useState } from "react";
+import { Circles } from "react-loader-spinner";
 import MessageBubble from "../MessageBubble/MessageBubble";
-import DateRangePicker from "../DateRangePicker/DateRangePicker";
-import SummaryCard from "../SummaryCard/SummaryCard";
 import DataTable from "../DataTable/DataTable";
 import { sendChatMessage } from "../../../services/chatServices2";
 import "../Chatbox/Chatbox.css";
+
+/**
+ * 🔧 Adaptador de la API externa → formato del chat
+ */
+const adaptApiResponse = (apiResponse) => {
+  const messages = [];
+
+  if (!apiResponse || !apiResponse.exito) {
+    messages.push({
+      from: "bot",
+      text: "❌ Error en la respuesta del servidor"
+    });
+    return messages;
+  }
+
+  // 🟢 Texto descriptivo
+  if (apiResponse.mensaje) {
+    messages.push({
+      from: "bot",
+      text: apiResponse.mensaje
+    });
+  }
+
+  // 🟢 Tabla
+  if (apiResponse.columnas && apiResponse.datos) {
+    messages.push({
+      type: "table",
+      data: {
+        headers: apiResponse.columnas,
+        rows: apiResponse.datos.map(row =>
+          apiResponse.columnas.map(col => row[col])
+        )
+      }
+    });
+  }
+
+  // 🟢 Gráfica (imagen base64)
+  if (apiResponse.tiene_grafica && apiResponse.grafica_base64) {
+    messages.push({
+      type: "image",
+      content: apiResponse.grafica_base64
+    });
+  }
+
+  return messages;
+};
 
 const ChatBox2 = () => {
   const role = localStorage.getItem("role");
@@ -15,55 +60,31 @@ const ChatBox2 = () => {
     { from: "bot", text: "Hola 😺 ¿en qué puedo ayudarte?" }
   ]);
   const [input, setInput] = useState("");
-  const [pendingIntent, setPendingIntent] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
     const userMessage = input;
 
     setMessages(prev => [...prev, { from: "user", text: userMessage }]);
     setInput("");
+    setLoading(true);
 
     try {
-      const response = await sendChatMessage(userMessage);
+      const apiResponse = await sendChatMessage(userMessage);
+      const adaptedMessages = adaptApiResponse(apiResponse);
 
-      // 🔹 Intent que necesita rango de fechas
-      if (response?.type === "intent" && response.data?.needsDateRange) {
-        setPendingIntent(response.data);
-        setMessages(prev => [
-          ...prev,
-          { from: "bot", text: "📅 Para responder a eso necesito un rango de fechas." }
-        ]);
-        return;
-      }
-
-      // 🔹 Resumen o tabla
-      if (response?.type === "summary" || response?.type === "table") {
-        setMessages(prev => [...prev, response]);
-        return;
-      }
-
-      // 🔹 Texto normal
-      if (response?.type === "text" && response?.content) {
-        setMessages(prev => [
-          ...prev,
-          { from: "bot", text: response.content }
-        ]);
-        return;
-      }
-
-      // 🔹 Fallback
-      setMessages(prev => [
-        ...prev,
-        { from: "bot", text: "ℹ️ He recibido la respuesta, pero no pude interpretarla." }
-      ]);
-
+      adaptedMessages.forEach(msg => {
+        setMessages(prev => [...prev, msg]);
+      });
     } catch (error) {
       setMessages(prev => [
         ...prev,
         { from: "bot", text: "❌ Error al conectar con el servidor" }
       ]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,16 +131,7 @@ const ChatBox2 = () => {
           {/* MENSAJES */}
           <div className="chatbox-messages">
             {messages.map((msg, i) => {
-              if (msg.type === "summary") {
-                return (
-                  <SummaryCard
-                    key={i}
-                    title={msg.content}
-                    value={msg.data.total}
-                  />
-                );
-              }
-
+              // 🟢 Tabla
               if (msg.type === "table") {
                 return (
                   <DataTable
@@ -130,6 +142,23 @@ const ChatBox2 = () => {
                 );
               }
 
+              // 🟢 Imagen / gráfica
+              if (msg.type === "image") {
+                return (
+                  <img
+                    key={i}
+                    src={msg.content}
+                    alt="Gráfica"
+                    style={{
+                      maxWidth: "100%",
+                      borderRadius: "8px",
+                      marginTop: "8px"
+                    }}
+                  />
+                );
+              }
+
+              // 🟢 Texto normal
               return (
                 <MessageBubble
                   key={i}
@@ -138,40 +167,26 @@ const ChatBox2 = () => {
                 />
               );
             })}
+
+            {/* 🟡 Spinner de carga */}
+            {loading && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  margin: "12px 0"
+                }}
+              >
+                <Circles
+                  height="40"
+                  width="40"
+                  color="#222222ff"
+                  ariaLabel="circles-loading"
+                  visible={true}
+                />
+              </div>
+            )}
           </div>
-
-          {/* DATE RANGE PICKER */}
-          {pendingIntent && (
-            <DateRangePicker
-              onConfirm={async (range) => {
-                setMessages(prev => [
-                  ...prev,
-                  {
-                    from: "user",
-                    text: `📅 Desde ${range.from} hasta ${range.to}`
-                  }
-                ]);
-
-                try {
-                  const response = await sendChatMessage({
-                    message: pendingIntent,
-                    dateRange: range
-                  });
-
-                  if (response?.type === "summary" || response?.type === "table") {
-                    setMessages(prev => [...prev, response]);
-                  }
-                } catch {
-                  setMessages(prev => [
-                    ...prev,
-                    { from: "bot", text: "❌ Error ejecutando la consulta" }
-                  ]);
-                }
-
-                setPendingIntent(null);
-              }}
-            />
-          )}
 
           {/* INPUT */}
           <div className="chatbox-input">
@@ -179,9 +194,12 @@ const ChatBox2 = () => {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Escribe tu pregunta..."
+              disabled={loading}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
             />
-            <button onClick={handleSend}>Enviar</button>
+            <button onClick={handleSend} disabled={loading}>
+              Enviar
+            </button>
           </div>
         </div>
       )}
