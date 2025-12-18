@@ -19,9 +19,9 @@ const SearchUser = ({setUsers}) => {
     <input
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Search User..."
+        placeholder="Buscar usuario..."
       />
-    <button onClick={handleSearch} className="botonBuscar">Search</button>
+    <button onClick={handleSearch} className="botonBuscar">Buscar</button>
   </div>
 };
 

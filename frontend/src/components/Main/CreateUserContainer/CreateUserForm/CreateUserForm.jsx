@@ -55,10 +55,10 @@ const CreateUserForm = () => {
         required
       />
       <select name="role" value={userData.role} onChange={handleChange} required>
-        <option value="">Select a role</option>
-        <option value="mkt">mkt</option>
-        <option value="hr">hr</option>
-        <option value="admin">admin</option>
+        <option value="">Seleccionar rol</option>
+        <option value="mkt">Marketing</option>
+        <option value="hr">Recursos Humanos</option>
+        <option value="admin">Administración</option>
       </select>
       <input
         type="password"
@@ -68,9 +68,13 @@ const CreateUserForm = () => {
         onChange={handleChange}
         required
       />
-      <button type="submit">Add User</button>
-      {msg && <p className="error">{msg}</p>}
-      <button type="button"><Link to="/users">See All Users</Link></button>
+      <div className="userFormButtons">
+  <button type="submit">Añadir Usuario</button>
+
+  <button type="button">
+    <Link to="/users">Ver Todos los Usuarios</Link>
+  </button>
+</div>
   </form>
 };
 

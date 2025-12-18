@@ -7,3 +7,13 @@ html,
 body {
   overflow-x: hidden;
 }
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1; /* empuja el footer */
+}

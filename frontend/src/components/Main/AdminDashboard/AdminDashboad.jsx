@@ -24,15 +24,6 @@ const AdminDashboard = () => {
           <p>Crear nuevos empleados y asignar roles</p>
         </Link>
 
-        <Link to="/mkt" className="adminCard">
-          <h2>📣 Marketing</h2>
-          <p>Campañas y comunicación interna</p>
-          </Link>
-
-        <Link to="/hr" className="adminCard">
-          <h2>🧑‍💼 Recursos Humanos</h2>
-          <p>Gestión de personal y formación</p>
-        </Link>
       </div>
     </section>
   );
