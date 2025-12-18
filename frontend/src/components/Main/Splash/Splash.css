@@ -17,6 +17,10 @@
   flex: unset;
 }
 
+.splash .content{
+  flex: unset;
+}
+
 .logo-nto {
   width: 300px;
   max-width: 80%;

@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./AdminDashboard.css";
-import ChatBox2 from "../../Chat/Chatbox/Chatbox2.jsx";
+import ChatBox2 from "../../Chat/Chatbox/Chatbox2";
+
 
 const AdminDashboard = () => {
   return (
