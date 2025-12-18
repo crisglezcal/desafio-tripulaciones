@@ -4,6 +4,7 @@ import AllUsersList from "./AllUsersList/AllUsersList";
 import './AllUsers.css';
 import { Circles } from 'react-loader-spinner';
 
+
 import { getAllUsers, deleteUserById,} from "../../../services/adminServices";
 //  updateUserById FALTA AÑADIR
 
@@ -71,6 +72,7 @@ const AllUsers = () => {
           loading={loading}
         />
       )}
+
   </section>
 };
 

@@ -4,6 +4,7 @@ import AddEmployee from "./AddEmployee/AddEmloyee.jsx";
 import "./HrPage.css";
 import Swal from "sweetalert2";
 import { Circles } from 'react-loader-spinner';
+import ChatBox2 from "../../Chat/Chatbox/Chatbox2";
 
 const HrPage = () => {
   const [employees, setEmployees] = useState([]);
@@ -158,6 +159,7 @@ const HrPage = () => {
           onCancel={() => setView("list")}
         />
       )}
+         <ChatBox2 />
     </div>
   );
 };
