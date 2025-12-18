@@ -6,7 +6,7 @@ import './CreateUserContainer.css';
 const CreateUserContainer = () => {
   
   return <section className="createUser">
-    <h1>Create a New User</h1>
+    <h1>Crea nuevos usuarios</h1>
       <CreateUserForm/>
   </section>
 };

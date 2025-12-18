@@ -8,27 +8,23 @@ import Splash from "./Splash/Splash";
 import Login from "./Login/Login";
 import MktPage from "./MktPage/MktPage";
 import HrPage from "./HrPage/HrPage";
-import Perfil from "./Perfil/Perfil";
 
 const Main = () => {
   return (
-    <main>
-      <Routes>
-        {/* Rutas SIN layout */}
-        <Route path="/" element={<Splash />} />
-        <Route path="/login" element={<Login />} />
+    <Routes>
+      {/* SIN layout */}
+      <Route path="/" element={<Splash />} />
+      <Route path="/login" element={<Login />} />
 
-        {/* Rutas CON layout */}
-        <Route element={<Layout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/createuser" element={<CreateUserContainer />} />
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/users" element={<AllUsers />} />
-          <Route path="/mkt" element={<MktPage />} />
-          <Route path="/hr" element={<HrPage />} />
-        </Route>
-      </Routes>
-    </main>
+      {/* CON layout */}
+      <Route element={<Layout />}>
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/createuser" element={<CreateUserContainer />} />
+        <Route path="/users" element={<AllUsers />} />
+        <Route path="/mkt" element={<MktPage />} />
+        <Route path="/hr" element={<HrPage />} />
+      </Route>
+    </Routes>
   );
 };
 

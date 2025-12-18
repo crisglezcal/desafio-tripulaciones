@@ -44,7 +44,7 @@ const AllUsers = () => {
 };
 
   return <section className="allUsers">
-    <h1>Users</h1>
+    <h1>Usuarios</h1>
     <div className="search">
       <SearchUser setUsers={setUsers}/>
     </div>

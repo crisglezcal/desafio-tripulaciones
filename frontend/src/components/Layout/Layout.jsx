@@ -12,11 +12,15 @@ const Layout = () => {
     isLoggedIn && !hideNavbarRoutes.includes(location.pathname);
 
   return (
-    <>
+    <div className="page">
       {showNavbar && <Navbar />}
-      <Outlet />
+
+      <main className="content">
+        <Outlet />
+      </main>
+
       {showNavbar && <Footer />}
-    </>
+    </div>
   );
 };
 

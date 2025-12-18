@@ -55,6 +55,22 @@
   color: #d4d4d4;
 }
 
+/* ===== NUEVO: BOTÓN CERRAR ===== */
+.chatbox-close {
+  margin-left: auto;          /* 👈 empuja la X a la derecha */
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.chatbox-close:hover {
+  opacity: 0.8;
+}
+
 /* =====================
    MENSAJES
 ===================== */

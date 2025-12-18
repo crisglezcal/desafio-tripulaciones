@@ -16,9 +16,7 @@ const MktPage = () => {
       <header className="mkt-header">
         <h1>Marketing Dashboard</h1>
         <p className="mkt-p">Este panel proporciona una visión integral del desempeño comercial, permitiendo 
-          analizar ventas, comportamiento de clientes y resultados por producto. La información 
-          se presenta de forma clara y estructurada para facilitar la toma de decisiones estratégicas
-           basadas en datos.</p>
+          analizar ventas, comportamiento de clientes y resultados por producto.</p>
         
       </header>
 
