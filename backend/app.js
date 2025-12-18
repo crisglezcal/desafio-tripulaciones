@@ -47,17 +47,7 @@ app.use((req, res, next) => {
   if (!req.timedout) next();
 });
 
-//Ciberseguridad (Rate limit)
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 min
-  max: 100, // Max 100 requests por IP
-  message: 'Demasiadas solicitudes, intenta más tarde.',
-  skip: (req) => {
-    // EXCLUYE específicamente /api/auth/login del rate limit global
-    return req.path === '/api/auth/login' || req.path === '/api/auth/login/';
-  }
-});
-app.use(limiter); 
+
 
 // Morgan
 app.use(morgan(':method :url :status :param[id] - :response-time ms :body'));
