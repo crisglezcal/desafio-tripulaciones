@@ -85,14 +85,14 @@ useEffect(() => {
         </BarChart>
       </ResponsiveContainer>
 
-        {/* {showViewTableButton && (
+        {showViewTableButton && (
         <button className="buttonMkt"
           onClick={onViewSalesList}
           style={{ marginTop: "20px", padding: "10px 15px", cursor: "pointer" }}
         >
           Ver tablas
         </button>
-      )} */}
+      )}
     </section>
   );
 };
